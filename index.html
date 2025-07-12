@@ -15,27 +15,29 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const mapWidth = 1000;
-    const mapHeight = 800;
+    const mapWidth = 1000; // px
+    const mapHeight = 800; // px
 
-    // Maak de kaart aan zonder geografisch CRS
+    // Create map with extended zoom range
     const map = L.map('map', {
       crs: L.CRS.Simple,
-      minZoom: -1,
-      maxZoom: 4
+      minZoom: -2,   // allows zooming out more
+      maxZoom: 5,    // allows zooming in more
+      zoomSnap: 0.25 // smoother zooming steps
     });
 
-    const bounds = [[0,0], [mapHeight, mapWidth]];
+    const bounds = [[0, 0], [mapHeight, mapWidth]];
 
-    // Voeg de PNG-afbeelding toe als "tile"
-    const image = L.imageOverlay('BIG MAP.png', bounds).addTo(map);
+    // Add PNG overlay
+    L.imageOverlay('BIG MAP.png', bounds).addTo(map);
 
+    // Fit map view to image bounds
     map.fitBounds(bounds);
 
-    // Voeg een marker toe op positie (y, x) — bijv. (400, 500)
-    const marker = L.marker([400, 500]).addTo(map)
-      .bindPopup("Hier is een punt op je kaart!");
-
+    // Example marker
+    L.marker([400, 500]).addTo(map)
+      .bindPopup("Hier is een marker!")
+      .openPopup();
   </script>
 </body>
 </html>
