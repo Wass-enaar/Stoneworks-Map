@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Custom PNG Map</title>
+  <title>Pure JS Map</title>
   <style>
     html, body {
       margin: 0;
@@ -54,7 +54,6 @@
       scale += e.deltaY > 0 ? -zoomIntensity : zoomIntensity;
       scale = Math.max(0.1, Math.min(scale, 10));
 
-      // Adjust origin to zoom at mouse position
       const rect = map.getBoundingClientRect();
       const offsetX = e.clientX - rect.left;
       const offsetY = e.clientY - rect.top;
