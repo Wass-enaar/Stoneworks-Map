@@ -1,43 +1,94 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Interactieve Kaart met PNG</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <title>Custom PNG Map</title>
   <style>
-    html, body { margin: 0; height: 100%; }
-    #map { width: 100%; height: 100vh; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #map-container {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+      cursor: grab;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: top left;
+      user-select: none;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
-  <div id="map"></div>
+  <div id="map-container">
+    <img id="map" src="BIG MAP.png" alt="Map" />
+  </div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const mapWidth = 1000; // px
-    const mapHeight = 800; // px
+    const map = document.getElementById('map');
+    const container = document.getElementById('map-container');
 
-    // Create map with extended zoom range
-    const map = L.map('map', {
-      crs: L.CRS.Simple,
-      minZoom: -2,   // allows zooming out more
-      maxZoom: 5,    // allows zooming in more
-      zoomSnap: 0.25 // smoother zooming steps
+    let scale = 1;
+    let originX = 0;
+    let originY = 0;
+    let isDragging = false;
+    let startX, startY;
+
+    function updateTransform() {
+      map.style.transform = `translate(${originX}px, ${originY}px) scale(${scale})`;
+    }
+
+    container.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomIntensity = 0.1;
+      const oldScale = scale;
+      scale += e.deltaY > 0 ? -zoomIntensity : zoomIntensity;
+      scale = Math.max(0.1, Math.min(scale, 10));
+
+      // Adjust origin to zoom at mouse position
+      const rect = map.getBoundingClientRect();
+      const offsetX = e.clientX - rect.left;
+      const offsetY = e.clientY - rect.top;
+      originX -= (offsetX / oldScale) * (scale - oldScale);
+      originY -= (offsetY / oldScale) * (scale - oldScale);
+
+      updateTransform();
     });
 
-    const bounds = [[0, 0], [mapHeight, mapWidth]];
+    container.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.clientX - originX;
+      startY = e.clientY - originY;
+      container.style.cursor = 'grabbing';
+    });
 
-    // Add PNG overlay
-    L.imageOverlay('BIG MAP.png', bounds).addTo(map);
+    container.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      originX = e.clientX - startX;
+      originY = e.clientY - startY;
+      updateTransform();
+    });
 
-    // Fit map view to image bounds
-    map.fitBounds(bounds);
+    container.addEventListener('mouseup', () => {
+      isDragging = false;
+      container.style.cursor = 'grab';
+    });
 
-    // Example marker
-    L.marker([400, 500]).addTo(map)
-      .bindPopup("Hier is een marker!")
-      .openPopup();
+    container.addEventListener('mouseleave', () => {
+      isDragging = false;
+      container.style.cursor = 'grab';
+    });
+
+    updateTransform();
   </script>
 </body>
 </html>
